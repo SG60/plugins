@@ -68,6 +68,11 @@ export function dynamicImportToGlob(node, sourceString) {
   }
   glob = glob.replace(/\*\*/g, '*');
 
+  // Separate search parameters from glob
+  const splitString = glob.split('?');
+  const searchParams = splitString.slice(1).join('');
+  [glob] = splitString;
+
   if (glob.startsWith('*')) {
     throw new VariableDynamicImportError(
       `invalid import "${sourceString}". It cannot be statically analyzed. Variable dynamic imports must start with ./ and be limited to a specific directory. ${example}`
@@ -103,5 +108,5 @@ export function dynamicImportToGlob(node, sourceString) {
     );
   }
 
-  return glob;
+  return { glob, searchParams };
 }

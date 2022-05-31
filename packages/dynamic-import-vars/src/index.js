@@ -33,18 +33,27 @@ function dynamicImportVariables({ include, exclude, warnOnError } = {}) {
 
           try {
             // see if this is a variable dynamic import, and generate a glob expression
-            const glob = dynamicImportToGlob(node.source, code.substring(node.start, node.end));
+            const importToGlobResult = dynamicImportToGlob(
+              node.source,
+              code.substring(node.start, node.end)
+            );
 
-            if (!glob) {
+            if (!importToGlobResult) {
               // this was not a variable dynamic import
               return;
             }
 
+            const { glob, searchParams } = importToGlobResult;
+
             // execute the glob
             const result = fastGlob.sync(glob, { cwd: path.dirname(id) });
-            const paths = result.map((r) =>
-              r.startsWith('./') || r.startsWith('../') ? r : `./${r}`
-            );
+            const paths = result.map((r) => {
+              let s = r.startsWith('./') || r.startsWith('../') ? r : `./${r}`;
+              if (searchParams) {
+                s += `?${searchParams}`;
+              }
+              return s;
+            });
 
             // create magic string if it wasn't created already
             ms = ms || new MagicString(code);

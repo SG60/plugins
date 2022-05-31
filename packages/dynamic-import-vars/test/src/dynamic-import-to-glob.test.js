@@ -13,7 +13,7 @@ test('template literal with variable filename', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './foo/*.js');
 });
 
@@ -22,8 +22,8 @@ test('data uri', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
-  t.is(glob, null);
+  const globObject = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  t.is(globObject, null);
 });
 
 test('template literal with dot-prefixed suffix', (t) => {
@@ -31,7 +31,7 @@ test('template literal with dot-prefixed suffix', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './*.entry.js');
 });
 
@@ -40,7 +40,7 @@ test('template literal with variable directory', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './foo/*/x.js');
 });
 
@@ -49,7 +49,7 @@ test('template literal with multiple variables', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './*/*.js');
 });
 
@@ -58,7 +58,7 @@ test('dynamic expression with variable filename', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './foo/*.js');
 });
 
@@ -67,7 +67,7 @@ test('dynamic expression with variable directory', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './foo/*/x.js');
 });
 
@@ -76,7 +76,7 @@ test('dynamic expression with multiple variables', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './*/*.js');
 });
 
@@ -85,7 +85,7 @@ test('string concatenation', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './foo/*.js');
 });
 
@@ -94,7 +94,7 @@ test('string concatenation and template literals combined', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './foo/*.js');
 });
 
@@ -103,7 +103,7 @@ test('string literal in a template literal expression', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './foo/*.js');
 });
 
@@ -112,7 +112,7 @@ test('multiple variables are collapsed into a single *', (t) => {
     sourceType: 'module'
   });
 
-  const glob = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  const { glob } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
   t.is(glob, './foo/*/*.js');
 });
 
@@ -252,4 +252,14 @@ test('throws when dynamic import imports does not contain a file extension', (t)
     'invalid import "${sourceString}". A file extension must be included in the static part of the import. For example: import(`./foo/${bar}.js`).'
   );
   t.true(error instanceof VariableDynamicImportError);
+});
+
+test('template literal with variable filename and searchParams', (t) => {
+  const ast = CustomParser.parse('import(`./foo/${bar}.jpg?w=400&h=300&webp`);', {
+    sourceType: 'module'
+  });
+
+  const { glob, searchParams } = dynamicImportToGlob(ast.body[0].expression.arguments[0]);
+  t.is(glob, './foo/*.jpg');
+  t.is(searchParams, 'w=400&h=300&webp');
 });
